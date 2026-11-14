@@ -45,7 +45,9 @@ class RAGService:
             raise ValueError("Question must not be empty")
 
         results = self.store.similarity_search_with_score(
-            query = question, k = self.settings.top_k
+            query = question, 
+            k = self.settings.top_k,
+            score_threshold = self.settings.threshold_score
         )
 
         if not results:

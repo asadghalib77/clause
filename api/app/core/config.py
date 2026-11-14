@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     data_path: str = "data/shop_handbook.pdf"
 
     #Chat
-    chat_model: str = "gemma4:31b-cloud"
+    chat_model: str = "gemma3:1b"
     chat_provider: str = "ollama"
     chat_temperature: float = 0.1
 
