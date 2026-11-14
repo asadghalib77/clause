@@ -4,6 +4,8 @@
 # from pypdf import PdfReader
 from langchain_core.documents import Document
 
+#import re   #add this in v6
+
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -12,7 +14,12 @@ from qdrant_client.models import Distance, VectorParams
 
 from app.core.config import get_settings, get_embeddings, get_qdrant_client
 
+#STAFF_ONLY= re.compile(pattern=r"\n?\d+\.[^\n]\(staff only\).?(?=\n\d+\. |\Z)", flags=re.S)
+
 def load(path: Path) -> list[Document]:
+    for doc in docs:
+        #doc.page_content = STAFF_ONLY.sub("", doc.page_content)  #remove staff only content
+    #return docs                          
     return PyPDFLoader(file_path=path).load()     #PyPDF List of documents bnata hai
 
 def ingest() -> int:
