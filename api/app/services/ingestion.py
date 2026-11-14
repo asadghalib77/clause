@@ -10,7 +10,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client.models import Distance, VectorParams
 
-from core.config import get_settings, get_embeddings, get_qdrant_client
+from app.core.config import get_settings, get_embeddings, get_qdrant_client
 
 def load(path: Path) -> list[Document]:
     return PyPDFLoader(file_path=path).load()     #PyPDF List of documents bnata hai
@@ -73,3 +73,6 @@ def ingest() -> int:
         client.close()
 
     return len(chunks)
+
+if __name__ == "__main__":
+    print(ingest(), "chunk indexed!")

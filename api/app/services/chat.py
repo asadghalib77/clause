@@ -74,3 +74,6 @@ class RAGService:
 
     def close(self) -> None:
         self.client.close()
+
+# Streaming and chat history add krni hai
+#Keyword Search
