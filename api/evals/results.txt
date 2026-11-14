@@ -1,0 +1,28 @@
+v1 - baseline:
+- chunk size =600, chunk overlap = 100
+- embedding model = nomic
+- simple system prompt
+- temp = 0.1
+- model or llm = gemma3:1b
+- top k = 3
+
+v2 
+- simple system prompt + prompt template
+
+v3
+- temp = 0
+
+v4
+- model == gemma3:1b or qwen3.5:0.8 - --> gemma3:4b or qwen3.5:4b or gemini-3.5-flash-lite
+
+v5
+top k = 2 (optional)
+
+v6
+
+leak rate --- ingestion.py (staff only section discard)
+
+v7
+
+golden_v2.json --- 50 questions
+Excel workbook
