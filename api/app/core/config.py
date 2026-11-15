@@ -1,15 +1,16 @@
 from pathlib import Path
 from functools import  lru_cache
+from dotenv import load_dotenv
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import SecretStr, Field
 from langchain.embeddings import init_embeddings
 from langchain_core.embeddings import Embeddings
 from qdrant_client import QdrantClient
 
 #api/env
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
-
+load_dotenv(ENV_FILE)  # Load environment variables from .env file
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix = "RAG_",
@@ -22,10 +23,16 @@ class Settings(BaseSettings):
     app_name: str = "Clause"
     data_path: str = "data/shop_handbook.pdf"
 
-    #Chat
-    chat_model: str = "gemma3:1b"
-    chat_provider: str = "ollama"
-    chat_temperature: float = 0.1
+
+
+    # Chat
+    chat_model: str = "gemini-3.5-flash-lite"
+    chat_provider: str = "google_genai"
+    chat_temperature: float = 0
+
+    chat_api_key: SecretStr = Field(
+        validation_alias="GOOGLE_API_KEY"
+    )
 
     #Embeding
     embed_provider: str = "ollama"
@@ -46,9 +53,13 @@ class Settings(BaseSettings):
     qdrant_url: str | None = None
 
     #Prompts
-    system: str = (
-        "You are helpful Clause shop assisstant."
-        "Answer only from the context provided."
+    system_prompt: str = (
+        "You are the Clause shop customer assistant. "
+        "Answer using ONLY the handbook text you are given. "
+        "Find the one sentence that answers the question and copy its numbers exactly. "
+        "Answer in one or two short sentences. Never mention 'the context' or 'the handbook text'. "
+        "If the handbook text does not answer the question, reply exactly: "
+        "\"I don't know.\""
     )
 
 @lru_cache

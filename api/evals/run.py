@@ -18,7 +18,7 @@ def pct(results):
     return f"{sum(results) / len(results):.0%}" if results else "n/a"
 
 
-tests = [json.loads(line) for line in open("evals/golden.jsonl") if line.strip()]
+tests = [json.loads(line) for line in open("evals/golden_v2.jsonl") if line.strip()]
 rag = RAGService()
 hits, fact_found, correct, refused, leaked = [], [], [], [], []
 

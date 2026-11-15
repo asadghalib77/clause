@@ -1,5 +1,5 @@
 from langchain.chat_models import init_chat_model
-from langchain_qdrant import Qdrant, QdrantVectorStore
+from langchain_qdrant import Qdrant, QdrantVectorStore, RetrievalMode, FastEmbedSparse
 from pydantic import BaseModel, Field
 
 from app.core.config import get_settings, get_embeddings, get_qdrant_client
@@ -29,13 +29,18 @@ class RAGService:
         self.store = QdrantVectorStore(
                     client = self.client,
                     collection_name=self.settings.collection,
-                    embedding = get_embeddings(settings=self.settings)
+                    embedding = get_embeddings(settings=self.settings),
+                    sparse_embedding=FastEmbedSparse(model_name="Qdrant/bm25"),
+                    retrieval_mode = RetrievalMode.HYBRID,
+                    vector_name="dense",
+                    sparse_vector_name="sparse"
                 )
 
         self.llm = init_chat_model(
             model= self.settings.chat_model,
             model_provider = self.settings.chat_provider,
-            temperature=self.settings.chat_temperature
+            # temperature=self.settings.chat_temperature
+            api_key=self.settings.chat_api_key.get_secret_value(),
         )
 
     def ask(self, question: str) -> Answer | None:
@@ -56,8 +61,9 @@ class RAGService:
         context = "\n\n".join(doc.page_content for doc, _ in results)
 
         messages = [
-            {"role": "system", "content" : self.settings.system},
-            {"role": "user", "content" : f"Context: {context}\nQuestion: {question}"}
+            {"role": "system", "content": self.settings.system_prompt},
+            # {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"},
+            {"role": "user", "content": f"Handbook text:\n{context}\n\nCustomer question: {question}"},
         ]
 
         return Answer(

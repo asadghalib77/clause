@@ -6,8 +6,41 @@ v1 - baseline:
 - model or llm = gemma3:1b
 - top k = 3
 
+Results:
+Retrieval hit rate (page): 69%
+Fact in chunks (stricter):  75%
+Answer correctness:         56%
+Refusal rate:               25%
+Leak rate:                  50%
+
 v2 
+- chunk size =600, chunk overlap = 100
+- embedding model = nomic
+- simple system prompt
+- temp = 0.1
+- model or llm = gemma3:1b
+- top k = 3
 - simple system prompt + prompt template
+
+system prompt: system_prompt: str = (
+        "You are the Clause shop customer assistant. "
+        "Answer using ONLY the handbook text you are given. "
+        "Find the one sentence that answers the question and copy its numbers exactly. "
+        "Answer in one or two short sentences. Never mention 'the context' or 'the handbook text'. "
+        "If the handbook text does not answer the question, reply exactly: "
+        "\"I don't know.\""
+    )
+prompt template: messages = [
+            {"role": "system", "content": self.settings.system_prompt},
+            {"role": "user", "content": f"Handbook text:\n{context}\n\nCustomer question: {question}"},
+        ]
+
+Results:
+Retrieval hit rate (page): 69%
+Fact in chunks (stricter):  75%
+Answer correctness:         50%
+Refusal rate:               50%
+Leak rate:                  50%
 
 v3
 - temp = 0
@@ -25,4 +58,15 @@ leak rate --- ingestion.py (staff only section discard)
 v7
 
 golden_v2.json --- 50 questions
+Retrieval hit rate (page): 69%
+Fact in chunks (stricter):  64%
+Answer correctness:         56%
+Refusal rate:               56%
+Leak rate:                  40%
 Excel workbook
+
+Retrieval hit rate (page): 72%
+Fact in chunks (stricter):  75%
+Answer correctness:         72%
+Refusal rate:               100%
+Leak rate:                  40%

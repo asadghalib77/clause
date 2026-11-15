@@ -4,11 +4,18 @@ from app.services.chat import RAGService
 def main() -> None:
     rag_service = RAGService()
     try:
-        query = input("You:").strip()
-        result = rag_service.ask(query)
-        print(f"AI Bot: {result.answer}")
-        if result.sources:
-            pass
+        while True:
+            query = input("You:").strip()
+            if not query:
+                continue
+            if query.lower() in ["exit", "quit", "bye"]:
+                break
+            result = rag_service.ask(query)
+            print(f"AI Bot: {result.answer}")
+            if result.sources:
+                print("Sources:")
+                for source in result.sources:
+                    print(f"- {source.source} (page: {source.page}, score: {source.score})")
         
     except (KeyboardInterrupt, EOFError):
         pass

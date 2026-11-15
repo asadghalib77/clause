@@ -9,3 +9,13 @@ wheels/
 # Virtual environments
 .venv
 qdrant_data/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/

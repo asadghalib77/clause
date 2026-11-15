@@ -4,23 +4,29 @@
 # from pypdf import PdfReader
 from langchain_core.documents import Document
 
-#import re   #add this in v6
+import re   #add this in v6
 
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_qdrant import QdrantVectorStore
-from qdrant_client.models import Distance, VectorParams
+from langchain_qdrant import QdrantVectorStore, RetrievalMode, FastEmbedSparse
+from qdrant_client.models import Distance, VectorParams, SparseVectorParams
 
 from app.core.config import get_settings, get_embeddings, get_qdrant_client
 
-#STAFF_ONLY= re.compile(pattern=r"\n?\d+\.[^\n]\(staff only\).?(?=\n\d+\. |\Z)", flags=re.S)
+STAFF_ONLY = re.compile(
+    r"^\s*12\.\s*Internal:.*?\(staff only\).*?(?=^\s*Clause Shop\s*\||\Z)",
+    flags=re.IGNORECASE | re.MULTILINE | re.DOTALL
+)
 
 def load(path: Path) -> list[Document]:
+    docs = PyPDFLoader(file_path=path).load()
+
     for doc in docs:
-        #doc.page_content = STAFF_ONLY.sub("", doc.page_content)  #remove staff only content
-    #return docs                          
-    return PyPDFLoader(file_path=path).load()     #PyPDF List of documents bnata hai
+        doc.page_content = STAFF_ONLY.sub("", doc.page_content)
+
+    return docs
+    
 
 def ingest() -> int:
     settings = get_settings()
@@ -30,7 +36,7 @@ def ingest() -> int:
     if not file.exists():
         raise FileNotFoundError(f"File not found: {file}")
     docs = load(path=file)
-
+    
     #2: Chunks
     splitter = RecursiveCharacterTextSplitter(
         chunk_size = settings.chunk_size,
@@ -54,16 +60,21 @@ def ingest() -> int:
 
         client.create_collection(
             collection_name=settings.collection,
-            vectors_config=VectorParams(
+            vectors_config={"dense": VectorParams(
                 size=settings.embed_dim,
                 distance=Distance.COSINE
-            )
+            )},
+            sparse_vectors_config={"sparse": SparseVectorParams()}
         )
 
         vector_store = QdrantVectorStore(
             client=client,
             collection_name=settings.collection,
-            embedding=embed
+            embedding=embed,
+            sparse_embedding=FastEmbedSparse(model_name="Qdrant/bm25"),
+            retrieval_mode = RetrievalMode.HYBRID,
+            vector_name="dense",
+            sparse_vector_name="sparse"
         )
 
         vector_store.add_documents(chunks)

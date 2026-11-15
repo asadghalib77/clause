@@ -9,3 +9,10 @@ wheels/
 # Virtual environments
 .venv
 qdrant_data/
+
+.env
+.env.*
+!.env.example
+api/.env
+api/.env.*
+!api/.env.example
