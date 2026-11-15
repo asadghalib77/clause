@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
 
     # Chat
-    chat_model: str = "gemini-3.5-flash-lite"
+    chat_model: str = "gemini-3.1-flash-lite"
     chat_provider: str = "google_genai"
     chat_temperature: float = 0
 
